@@ -12,13 +12,13 @@ namespace assistant {
 using json = nlohmann::ordered_json;
 
 template <typename EnumName>
-inline bool IsFlagSet(EnumName flags, EnumName flag) {
+bool IsFlagSet(EnumName flags, EnumName flag) {
   using T = std::underlying_type_t<EnumName>;
   return (static_cast<T>(flags) & static_cast<T>(flag)) == static_cast<T>(flag);
 }
 
 template <typename EnumName>
-inline void AddFlagSet(EnumName& flags, EnumName flag) {
+void AddFlagSet(EnumName& flags, EnumName flag) {
   using T = std::underlying_type_t<EnumName>;
   T& t = reinterpret_cast<T&>(flags);
   t |= static_cast<T>(flag);
@@ -184,8 +184,7 @@ struct Usage {
   }
 
  private:
-  inline static void ReadNumber(const json& j, std::string_view name,
-                                int& output) {
+  static void ReadNumber(const json& j, std::string_view name, int& output) {
     if (j.contains(name) && j[name].is_number()) {
       output = j[name].get<int>();
     }

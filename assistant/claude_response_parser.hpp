@@ -144,22 +144,20 @@ struct ParseResult {
   ToolCall tool_call;
   std::optional<Usage> usage{std::nullopt};
 
-  inline bool HasValue() const { return content_type.has_value(); }
-  inline bool NeedMoreData() const { return need_more_data; }
-  inline bool IsDone() const { return is_done; }
-  inline bool IsToolCall() const {
+  bool HasValue() const { return content_type.has_value(); }
+  bool NeedMoreData() const { return need_more_data; }
+  bool IsDone() const { return is_done; }
+  bool IsToolCall() const {
     return content_type.has_value() &&
            content_type.value() == ContentType::tool_use;
   }
 
-  inline const std::optional<Usage> GetUsage() const { return usage; }
-  inline const std::string& GetToolName() const { return tool_call.name; }
-  inline const std::string& GetToolId() const { return tool_call.id; }
-  inline const std::string& GetToolJsonStr() const {
-    return tool_call.json_str;
-  }
+  const std::optional<Usage> GetUsage() const { return usage; }
+  const std::string& GetToolName() const { return tool_call.name; }
+  const std::string& GetToolId() const { return tool_call.id; }
+  const std::string& GetToolJsonStr() const { return tool_call.json_str; }
 
-  inline json GetToolJson() const {
+  json GetToolJson() const {
     try {
       // Might be an empty string. use try/catch
       return json::parse(GetToolJsonStr());
@@ -169,11 +167,11 @@ struct ParseResult {
     }
   }
 
-  inline bool IsThinking() const {
+  bool IsThinking() const {
     return content_type.has_value() &&
            content_type.value() == ContentType::thinking;
   }
-  inline Reason GetReason() const {
+  Reason GetReason() const {
     if (IsDone()) {
       // Check the real reason.
       if (stop_reason.value_or(StopReason::end_turn) ==
@@ -201,7 +199,7 @@ class ResponseParser {
   ResponseParser() = default;
   ~ResponseParser() = default;
   void Parse(const std::string& text, std::function<void(ParseResult)> cb);
-  inline void Reset() {
+  void Reset() {
     m_content.clear();
     m_state = ParserState::initial;
     m_tool_call.Reset();

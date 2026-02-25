@@ -63,7 +63,7 @@ struct ChatRequestQueue {
   ChatRequestQueue() = default;
   ~ChatRequestQueue() = default;
 
-  inline std::shared_ptr<ChatRequest> pop_front_and_return() {
+  std::shared_ptr<ChatRequest> pop_front_and_return() {
     std::scoped_lock lk{m_mutex};
     if (m_vec.empty()) {
       return nullptr;
@@ -73,18 +73,18 @@ struct ChatRequestQueue {
     return fr;
   }
 
-  inline bool empty() const { return size() == 0; }
-  inline void push_back(std::shared_ptr<ChatRequest> c) {
+  bool empty() const { return size() == 0; }
+  void push_back(std::shared_ptr<ChatRequest> c) {
     std::scoped_lock lk{m_mutex};
     m_vec.push_back(c);
   }
 
-  inline void clear() {
+  void clear() {
     std::scoped_lock lk{m_mutex};
     m_vec.clear();
   }
 
-  inline size_t size() const {
+  size_t size() const {
     std::scoped_lock lk{m_mutex};
     return m_vec.size();
   }
@@ -175,7 +175,7 @@ struct History {
    *
    * @return true if currently pointing to temp_messages_, false otherwise.
    */
-  inline bool IsTempHistory() const {
+  bool IsTempHistory() const {
     std::scoped_lock lock{mutex_};
     return active_history_ == &temp_messages_;
   }
@@ -186,7 +186,7 @@ struct History {
    * @return The number of unmatched SwapToTempHistory() calls (swap nesting
    * level).
    */
-  inline size_t GetSwapCount() const {
+  size_t GetSwapCount() const {
     std::scoped_lock lock{mutex_};
     return swap_count_;
   }
@@ -289,7 +289,7 @@ struct History {
    *
    * @return true if the active history contains no messages, false otherwise.
    */
-  inline bool IsEmpty() const {
+  bool IsEmpty() const {
     std::scoped_lock lock{mutex_};
     return active_history_->empty();
   }
@@ -357,12 +357,12 @@ class ClientBase {
   }
 
   virtual void Interrupt() { m_interrupt.store(true); }
-  inline bool IsInterrupted() const { return m_interrupt.load(); }
+  bool IsInterrupted() const { return m_interrupt.load(); }
 
   /// Set the number of messages to keep when chatting with the model. The
   /// implementation uses a FIFO.
-  inline void SetHistorySize(size_t count) { m_windows_size.store(count); }
-  inline size_t GetHistorySize() const { return m_windows_size.load(); }
+  void SetHistorySize(size_t count) { m_windows_size.store(count); }
+  size_t GetHistorySize() const { return m_windows_size.load(); }
 
   const FunctionTable& GetFunctionTable() const { return m_function_table; }
   FunctionTable& GetFunctionTable() { return m_function_table; }
@@ -410,80 +410,80 @@ class ClientBase {
     m_history.SetMessages(m);
   }
 
-  inline std::string GetUrl() const { return m_endpoint.get_value().url_; }
-  inline std::unordered_map<std::string, std::string> GetHttpHeaders() const {
+  std::string GetUrl() const { return m_endpoint.get_value().url_; }
+  std::unordered_map<std::string, std::string> GetHttpHeaders() const {
     return m_endpoint.get_value().headers_;
   }
-  inline EndpointKind GetEndpointKind() const {
+  EndpointKind GetEndpointKind() const {
     return m_endpoint.get_value().type_;
   }
 
-  inline void SetEndpointKind(EndpointKind kind) {
+  void SetEndpointKind(EndpointKind kind) {
     m_endpoint.with_mut([kind](Endpoint& ep) { ep.type_ = kind; });
   }
 
-  inline size_t GetMaxTokens() const {
+  size_t GetMaxTokens() const {
     return m_endpoint.get_value().max_tokens_.value_or(kMaxTokensDefault);
   }
 
-  inline size_t GetContextSize() const {
+  size_t GetContextSize() const {
     return m_endpoint.get_value().context_size_.value_or(kDefaultContextSize);
   }
 
-  inline void SetMaxTokens(size_t count) {
+  void SetMaxTokens(size_t count) {
     m_endpoint.with_mut([count](Endpoint& ep) { ep.max_tokens_ = count; });
   }
 
-  inline void SetEndpoint(const Endpoint& ep) {
+  void SetEndpoint(const Endpoint& ep) {
     m_endpoint.with_mut([ep](Endpoint& endpoint) { endpoint = ep; });
   }
 
-  inline std::string GetModel() const { return m_endpoint.get_value().model_; }
+  std::string GetModel() const { return m_endpoint.get_value().model_; }
 
-  inline std::optional<Pricing> GetPricing() const {
+  std::optional<Pricing> GetPricing() const {
     return m_cost.get_value();
   }
 
-  inline void SetPricing(const Pricing& cost) { m_cost.set_value(cost); }
+  void SetPricing(const Pricing& cost) { m_cost.set_value(cost); }
 
-  inline void SetLastRequestCost(double cost) {
+  void SetLastRequestCost(double cost) {
     m_last_request_amount = cost;
     m_total_amount += cost;
   }
 
-  inline double GetLastRequestCost() const { return m_last_request_amount; }
-  inline double GetTotalCost() const { return m_total_amount; }
-  inline void ResetCost() {
+  double GetLastRequestCost() const { return m_last_request_amount; }
+  double GetTotalCost() const { return m_total_amount; }
+  void ResetCost() {
     m_total_amount = 0;
     m_last_request_amount = 0;
   }
 
-  inline std::optional<Usage> GetLastRequestUsage() const {
+  std::optional<Usage> GetLastRequestUsage() const {
     return m_last_request_usage.get_value();
   }
 
-  inline void SetLastRequestUsage(const Usage& usage) {
+  void SetLastRequestUsage(const Usage& usage) {
     m_last_request_usage.set_value(usage);
     m_aggregated_usage.with_mut([&usage](Usage& agg) { agg.Add(usage); });
   }
 
-  inline Usage GetAggregatedUsage() const {
+  Usage GetAggregatedUsage() const {
     return m_aggregated_usage.get_value();
   }
 
-  inline void SetCachingPolicy(CachePolicy policy) {
+  void SetCachingPolicy(CachePolicy policy) {
     m_caching_policy.set_value(policy);
   }
 
-  inline CachePolicy GetCachingPolicy() const {
+  CachePolicy GetCachingPolicy() const {
     return m_caching_policy.get_value();
   }
 
-  inline void SetTransportType(TransportType type) {
+  void SetTransportType(TransportType type) {
     m_transport_type.set_value(type);
   }
 
-  inline TransportType GetTransportType() const {
+  TransportType GetTransportType() const {
     return m_transport_type.get_value();
   }
 

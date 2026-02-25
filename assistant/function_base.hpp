@@ -45,8 +45,8 @@ class Param {
     j["description"] = m_desc;
     return j;
   }
-  inline const std::string& GetName() const { return m_name; }
-  inline bool IsRequired() const { return m_required; }
+  const std::string& GetName() const { return m_name; }
+  bool IsRequired() const { return m_required; }
 
  private:
   std::string m_name;
@@ -87,10 +87,10 @@ class FunctionBase {
   }
 
   virtual FunctionResult Call(const json& params) const = 0;
-  inline const std::string& GetName() const { return m_name; }
-  inline const std::string& GetDesc() const { return m_desc; }
-  inline bool IsEnabled() const { return m_enabled; }
-  inline void SetEnabled(bool b) { m_enabled = b; }
+  const std::string& GetName() const { return m_name; }
+  const std::string& GetDesc() const { return m_desc; }
+  bool IsEnabled() const { return m_enabled; }
+  void SetEnabled(bool b) { m_enabled = b; }
 
  private:
   json ToOllamaJson() const {
@@ -267,7 +267,7 @@ class FunctionTable {
    * @return true if the function was found and its state was modified, false if
    * the function does not exist
    */
-  inline bool EnableFunction(const std::string& name, bool b)
+  bool EnableFunction(const std::string& name, bool b)
       FUNCTION_LOCKS(m_mutex) {
     std::scoped_lock lk{m_mutex};
     auto iter = m_functions.find(name);
@@ -287,7 +287,7 @@ class FunctionTable {
    *
    * @return The number of enabled functions in the collection.
    */
-  inline size_t GetFunctionsCount() const FUNCTION_LOCKS(m_mutex) {
+  size_t GetFunctionsCount() const FUNCTION_LOCKS(m_mutex) {
     std::scoped_lock lk{m_mutex};
     size_t count{0};
     for (auto& [name, func] : m_functions) {
@@ -301,7 +301,7 @@ class FunctionTable {
   /**
    * @brief synonym to `GetFunctionsCount() == 0`
    */
-  inline bool IsEmpty() const { return GetFunctionsCount() == 0; }
+  bool IsEmpty() const { return GetFunctionsCount() == 0; }
 
  private:
   void AddMCPServerInternal(std::shared_ptr<MCPClient> client)

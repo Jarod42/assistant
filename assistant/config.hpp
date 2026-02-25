@@ -17,7 +17,7 @@ struct StdioParams {
   std::vector<std::string> args;
   std::optional<SSHLogin> ssh_login;
   std::optional<assistant::json> env;
-  inline bool IsRemote() const { return ssh_login.has_value(); }
+  bool IsRemote() const { return ssh_login.has_value(); }
 };
 
 struct SseParams {
@@ -32,8 +32,8 @@ struct MCPServerConfig {
   bool enabled{true};
   std::optional<StdioParams> stdio_params;
   std::optional<SseParams> sse_params;
-  inline bool IsStdio() const { return stdio_params.has_value(); }
-  inline bool IsSse() const { return sse_params.has_value(); }
+  bool IsStdio() const { return stdio_params.has_value(); }
+  bool IsSse() const { return sse_params.has_value(); }
 };
 
 inline std::ostream& operator<<(std::ostream& os, const MCPServerConfig& mcp) {
@@ -127,21 +127,21 @@ struct ServerTimeout {
   int write_ms_{10000};
 
   /// Convert milliseconds to pair of secs/micros.
-  inline std::pair<int, int> ToSecsAndMicros(int time_ms) const {
+  std::pair<int, int> ToSecsAndMicros(int time_ms) const {
     int secs = time_ms / 1000;
     int micro_secs = (time_ms % 1000) * 1000;
     return {secs, micro_secs};
   }
 
-  inline std::pair<int, int> GetConnectTimeout() const {
+  std::pair<int, int> GetConnectTimeout() const {
     return ToSecsAndMicros(connect_ms_);
   }
 
-  inline std::pair<int, int> GetReadTimeout() const {
+  std::pair<int, int> GetReadTimeout() const {
     return ToSecsAndMicros(read_ms_);
   }
 
-  inline std::pair<int, int> GetWriteTimeout() const {
+  std::pair<int, int> GetWriteTimeout() const {
     return ToSecsAndMicros(write_ms_);
   }
 };
@@ -198,7 +198,7 @@ class Config {
    */
   static std::optional<Config> FromContent(const std::string& json_content);
 
-  inline const std::vector<MCPServerConfig>& GetServers() const {
+  const std::vector<MCPServerConfig>& GetServers() const {
     return m_servers;
   }
 
@@ -208,7 +208,7 @@ class Config {
 
   /// Return the active endpoint. This function may return nullptr is no
   /// endpoints are configured.
-  inline std::shared_ptr<Endpoint> GetEndpoint() const {
+  std::shared_ptr<Endpoint> GetEndpoint() const {
     auto iter =
         std::find_if(endpoints_.begin(), endpoints_.end(),
                      [](std::shared_ptr<Endpoint> ep) { return ep->active_; });
@@ -225,12 +225,12 @@ class Config {
 
   const std::string& GetKeepAlive() const { return m_keep_alive; }
   bool IsStream() const { return m_stream; }
-  inline ServerTimeout GetServerTimeoutSettings() const {
+  ServerTimeout GetServerTimeoutSettings() const {
     return m_server_timeout;
   }
 
   /// Return the list of endpoints as defined in the configuration file.
-  inline const std::vector<std::shared_ptr<Endpoint>>& GetEndpoints() const {
+  const std::vector<std::shared_ptr<Endpoint>>& GetEndpoints() const {
     return endpoints_;
   }
 

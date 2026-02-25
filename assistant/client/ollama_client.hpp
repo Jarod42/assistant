@@ -27,7 +27,7 @@ class OllamaClient : public ClientBase {
   bool IsRunning() override;
 
   /// Return if the server is busy processing a request.
-  inline bool IsBusy() const {
+  bool IsBusy() const {
     std::scoped_lock lk{m_client_impl_ptr_mutex};
     return m_client_impl_ptr != nullptr;
   }
