@@ -13,7 +13,7 @@ void ResponseParser::Parse(const std::string& text,
   while (true) {
     auto event_message_opt = NextMessage();
     if (!event_message_opt.has_value()) {
-      cb(std::move(ParseResult{.need_more_data = true}));
+      cb(ParseResult{.need_more_data = true});
       return;
     }
 
@@ -30,22 +30,20 @@ void ResponseParser::Parse(const std::string& text,
           case Event::ping:
             break;
           case Event::message_delta:
-            cb(std::move(ParseResult{.is_done = false,
-                                     .usage = GetUsage(event_message)}));
+            cb(ParseResult{.is_done = false, .usage = GetUsage(event_message)});
             break;
           case Event::message_stop:
-            cb(std::move(
-                ParseResult{.is_done = true,
-                            .stop_reason = GetStopReason(event_message),
-                            .usage = GetUsage(event_message)}));
+            cb(ParseResult{.is_done = true,
+                           .stop_reason = GetStopReason(event_message),
+                           .usage = GetUsage(event_message)});
             Reset();
             return;
           case Event::error:
-            cb(std::move(ParseResult{
+            cb(ParseResult{
                 .is_done = true,
                 .content = GetErrorMessage(event_message.data).value_or(""),
                 .stop_reason = StopReason::error,
-            }));
+            });
             Reset();
             return;
           case Event::content_block_start: {
@@ -72,34 +70,32 @@ void ResponseParser::Parse(const std::string& text,
             ss << "Invalid message: "
                << magic_enum::enum_name<Event>(event_message.event);
             throw std::runtime_error(ss.str());
-          } break;
+          }
         }
         break;
         case ParserState::collect_text:
           switch (event_message.event) {
             case Event::error:
-              cb(std::move(ParseResult{
+              cb(ParseResult{
                   .is_done = true,
                   .content = GetErrorMessage(event_message.data).value_or(""),
                   .stop_reason = StopReason::error,
-              }));
+              });
               Reset();
               return;
             case Event::message_stop:
-              cb(std::move(
-                  ParseResult{.is_done = true,
-                              .stop_reason = GetStopReason(event_message),
-                              .usage = GetUsage(event_message)}));
+              cb(ParseResult{.is_done = true,
+                             .stop_reason = GetStopReason(event_message),
+                             .usage = GetUsage(event_message)});
               Reset();
               return;
-            case Event::content_block_delta: {
+            case Event::content_block_delta:
               // data:
               // {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
               // Francisco"}}
-              std::string text = GetContentBlockDeltaContent(event_message);
-              cb(std::move(ParseResult{.content_type = ContentType::text,
-                                       .content = text}));
-            } break;
+              cb(ParseResult{.content_type = ContentType::text,
+                             .content = GetContentBlockDeltaContent(event_message)});
+            break;
             case Event::content_block_stop:
               m_state = ParserState::initial;
               break;
@@ -121,24 +117,23 @@ void ResponseParser::Parse(const std::string& text,
                   GetContentBlockDeltaContent(event_message));
               break;
             case Event::content_block_stop: {
-              cb(std::move(ParseResult{.content_type = ContentType::tool_use,
-                                       .tool_call = m_tool_call}));
+              cb(ParseResult{.content_type = ContentType::tool_use,
+                             .tool_call = m_tool_call});
               m_tool_call.Reset();
               m_state = ParserState::initial;
             } break;
             case Event::error:
-              cb(std::move(ParseResult{
+              cb(ParseResult{
                   .is_done = true,
                   .content = GetErrorMessage(event_message.data).value_or(""),
                   .stop_reason = StopReason::error,
-              }));
+              });
               Reset();
               return;
             case Event::message_stop:
-              cb(std::move(
-                  ParseResult{.is_done = true,
-                              .stop_reason = GetStopReason(event_message),
-                              .usage = GetUsage(event_message)}));
+              cb(ParseResult{.is_done = true,
+                             .stop_reason = GetStopReason(event_message),
+                             .usage = GetUsage(event_message)});
               Reset();
               return;
             case Event::content_block_start:
@@ -148,27 +143,26 @@ void ResponseParser::Parse(const std::string& text,
           break;
         case ParserState::collect_thinking:
           switch (event_message.event) {
-            case Event::content_block_delta: {
-              std::string text = GetContentBlockDeltaContent(event_message);
-              cb(std::move(ParseResult{.content_type = ContentType::thinking,
-                                       .content = text}));
-            } break;
+            case Event::content_block_delta:
+              cb(ParseResult{
+                  .content_type = ContentType::thinking,
+                  .content = GetContentBlockDeltaContent(event_message)});
+            break;
             case Event::content_block_stop:
               m_state = ParserState::initial;
               break;
             case Event::message_stop:
-              cb(std::move(
-                  ParseResult{.is_done = true,
-                              .stop_reason = GetStopReason(event_message),
-                              .usage = GetUsage(event_message)}));
+              cb(ParseResult{.is_done = true,
+                             .stop_reason = GetStopReason(event_message),
+                             .usage = GetUsage(event_message)});
               Reset();
               return;
             case Event::error:
-              cb(std::move(ParseResult{
+              cb(ParseResult{
                   .is_done = true,
                   .content = GetErrorMessage(event_message.data).value_or(""),
                   .stop_reason = StopReason::error,
-              }));
+              });
               Reset();
               return;
             case Event::ping:
