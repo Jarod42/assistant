@@ -639,7 +639,7 @@ void stdio_client::read_thread_func() {
                 // Currently not handling requests from the server
               }
             }
-          } catch (const json::exception& e) {
+          } catch (const json::exception&) {
             MCP_LOG_INFO("message: ", line);
           }
         }

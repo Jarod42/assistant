@@ -634,9 +634,9 @@ class ClientImpl : public ITransport {
         assistant::response response(total_response);
         partial_responses->clear();
         continue_stream = on_receive_token(response, user_data);
-      } catch (const assistant::invalid_json_exception&
-                   e) { /* Partial response was received. Will do nothing and
-                           attempt to concatenate with the next response. */
+      } catch (const assistant::invalid_json_exception&) {
+        /* Partial response was received. Will do nothing and attempt to
+         * concatenate with the next response. */
       }
 
       return continue_stream;

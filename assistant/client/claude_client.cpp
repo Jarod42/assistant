@@ -15,7 +15,7 @@ std::optional<json> ClaudeClient::GetModelInfo(
 }
 
 std::optional<ModelCapabilities> ClaudeClient::GetModelCapabilities(
-    const std::string& model) {
+    [[maybe_unused]] const std::string& model) {
   ModelCapabilities flags{ModelCapabilities::kNone};
   AddFlagSet(flags, ModelCapabilities::kTools);
   AddFlagSet(flags, ModelCapabilities::kCompletion);

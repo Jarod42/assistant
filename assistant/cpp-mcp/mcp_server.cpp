@@ -33,7 +33,7 @@ bool server::start(bool blocking) {
 
   // Setup CORS handling
   http_server_->Options(
-      ".*", [](const httplib::Request& req, httplib::Response& res) {
+      ".*", []([[maybe_unused]]const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.set_header("Access-Control-Allow-Headers", "Content-Type");
@@ -265,7 +265,8 @@ void server::register_resource(const std::string& path,
   // Register methods for resource access
   if (method_handlers_.find("resources/read") == method_handlers_.end()) {
     method_handlers_["resources/read"] =
-        [this](const json& params, const std::string& session_id) -> json {
+        [this](const json& params,
+               [[maybe_unused]] const std::string& session_id) -> json {
       if (!params.contains("uri")) {
         throw mcp_exception(error_code::invalid_params,
                             "Missing 'uri' parameter");
@@ -287,7 +288,8 @@ void server::register_resource(const std::string& path,
 
   if (method_handlers_.find("resources/list") == method_handlers_.end()) {
     method_handlers_["resources/list"] =
-        [this](const json& params, const std::string& session_id) -> json {
+        [this](const json& params,
+               [[maybe_unused]] const std::string& session_id) -> json {
       json resources = json::array();
 
       for (const auto& [uri, res] : resources_) {
@@ -306,7 +308,8 @@ void server::register_resource(const std::string& path,
 
   if (method_handlers_.find("resources/subscribe") == method_handlers_.end()) {
     method_handlers_["resources/subscribe"] =
-        [this](const json& params, const std::string& session_id) -> json {
+        [this](const json& params,
+               [[maybe_unused]] const std::string& session_id) -> json {
       if (!params.contains("uri")) {
         throw mcp_exception(error_code::invalid_params,
                             "Missing 'uri' parameter");
@@ -326,7 +329,8 @@ void server::register_resource(const std::string& path,
   if (method_handlers_.find("resources/templates/list") ==
       method_handlers_.end()) {
     method_handlers_["resources/templates/list"] =
-        [](const json& params, const std::string& session_id) -> json {
+        []([[maybe_unused]] const json& params,
+           [[maybe_unused]] const std::string& session_id) -> json {
       return json::array();
     };
   }
@@ -339,7 +343,8 @@ void server::register_tool(const tool& tool, tool_handler handler) {
   // Register methods for tool listing and calling
   if (method_handlers_.find("tools/list") == method_handlers_.end()) {
     method_handlers_["tools/list"] =
-        [this](const json& params, const std::string& session_id) -> json {
+        [this]([[maybe_unused]] const json& params,
+               [[maybe_unused]] const std::string& session_id) -> json {
       json tools_json = json::array();
       for (const auto& [name, tool_pair] : tools_) {
         tools_json.push_back(tool_pair.first.to_json());
@@ -413,7 +418,8 @@ void server::set_auth_handler(auth_handler handler) {
   auth_handler_ = handler;
 }
 
-void server::handle_sse(const httplib::Request& req, httplib::Response& res) {
+void server::handle_sse([[maybe_unused]] const httplib::Request& req,
+                        httplib::Response& res) {
   std::string session_id = generate_session_id();
   std::string session_uri = msg_endpoint_ + "?session_id=" + session_id;
 
@@ -732,7 +738,7 @@ json server::process_request(const request& req,
 }
 
 json server::handle_initialize(const request& req,
-                               const std::string& session_id) {
+                               [[maybe_unused]] const std::string& session_id) {
   const json& params = req.params;
 
   // Version negotiation

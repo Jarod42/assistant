@@ -97,7 +97,7 @@ std::optional<json> OllamaClient::GetModelInfo(const std::string& model) {
     auto client = CreateClient();
     OLOG(LogLevel::kInfo) << "Fetching info for model: " << model;
     return client->show_model_info(model);
-  } catch (std::exception& e) {
+  } catch (const std::exception&) {
     return std::nullopt;
   }
 }

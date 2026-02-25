@@ -175,7 +175,7 @@ try_read_jsons_from_string(const std::string& instr) {
         break;
       }
 
-    } catch (const nlohmann::json::exception& e) {
+    } catch (const nlohmann::json::exception&) {
       // JSON parsing threw an exception, stop here
       break;
     } catch (...) {

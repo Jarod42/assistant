@@ -221,7 +221,6 @@ inline std::optional<Pricing> FindPricing(const std::string& model_name) {
 
 inline void AddPricing(const std::string& model_name, const Pricing& pricing) {
   std::lock_guard lock{CLAUDE_PRICING_mutex};
-  PRICING_TABLE.find(model_name);
   PRICING_TABLE.insert({model_name, pricing});
 }
 
